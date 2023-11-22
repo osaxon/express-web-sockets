@@ -1,3 +1,5 @@
 import { server } from "./app";
 
-server.listen(9090, () => console.log("app running on port 9090 👾"));
+const PORT = process.env.PORT || 9090;
+
+server.listen(PORT, () => console.log(`app running on port ${PORT} 👾`));
