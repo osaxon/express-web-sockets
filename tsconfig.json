@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",             // Specify the ECMAScript version
+    "module": "CommonJS",           // Specify module system (Node.js uses CommonJS)
+    "esModuleInterop": true,         // Enable compatibility with commonJS-style imports
+    "outDir": "./dist",              // Specify output directory for compiled files
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true    
+  },
+  "include": [
+    "src/**/*"                   // Specify files to include in compilation
+],
+  "exclude": [
+    "node_modules"                  // Specify files to exclude from compilation
+  ]
+}
