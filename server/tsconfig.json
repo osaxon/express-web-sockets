@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true    
   },
   "include": [
-    "src/**/*"                   // Specify files to include in compilation
+    "src/**/*",
+    "src/types.d.ts"                   // Specify files to include in compilation
 ],
   "exclude": [
     "node_modules"                  // Specify files to exclude from compilation
