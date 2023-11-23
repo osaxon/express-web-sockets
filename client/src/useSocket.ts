@@ -35,11 +35,11 @@ export function useSocket({
                 token: token,
             },
         });
-        
+
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        console.log("useSocket useEffect", endpoint, socket);
+        console.log("useSocket >> useEffect", endpoint, socket);
 
         function onConnect() {
             setIsConnected(true);
