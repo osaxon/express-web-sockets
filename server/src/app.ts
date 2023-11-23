@@ -1,13 +1,22 @@
 import express from "express";
+import cors from "cors";
 import { createServer } from "node:http";
-import { SessionSocket } from "./types";
+import {
+    SessionSocket,
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData,
+    PollState,
+} from "./types";
 import session from "express-session";
 import { join } from "node:path";
 import { Server, Socket } from "socket.io";
-import { v4 as uuidv4 } from "uuid";
 
 const app = express();
 const server = createServer(app);
+
+app.use(cors({ origin: "*" }));
 
 const sessionMiddleware = session({
     secret: "super-secret-message",
@@ -27,23 +36,87 @@ app.post("/incr", (req, res) => {
     res.status(200).end("" + session.count);
 });
 
-const io = new Server(server);
+const io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SessionSocket
+>(server, {
+    cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
+});
+
 io.engine.use(sessionMiddleware);
 
-// const wrapper = (middleware: any) => (socket: Socket, next: any) =>
-//     middleware(socket.request, {}, next);
-// io.use(wrapper(session));
+io.use(addSessionToSocketData);
 
-function doSomethingWithSocket(socket: SessionSocket) {
-    console.log(socket.request.session);
+async function addSessionToSocketData(
+    socket: SessionSocket,
+    next: (err?: Error) => void
+) {
+    const session = socket.request.session;
+    const user = socket.handshake.auth.token;
+
+    if (session) {
+        try {
+            socket.data = { ...socket.data, user: user, session };
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    next();
 }
+
+// the server determines the PollState object, i.e. what users will vote on
+// this will be sent to the client and displayed on the front-end
+const poll: PollState = {
+    question: "What are eating for lunch ✨ Let's order",
+    options: [
+        {
+            id: 1,
+            text: "Party Pizza Place",
+            description: "Best pizza in town",
+            votes: [],
+        },
+        {
+            id: 2,
+            text: "Best Burger Joint",
+            description: "Best burger in town",
+            votes: [],
+        },
+        {
+            id: 3,
+            text: "Sus Sushi Place",
+            description: "Best sushi in town",
+            votes: [],
+        },
+    ],
+};
 
 io.on("connection", (defaultSocket: Socket) => {
     const socket = <SessionSocket>defaultSocket;
-    doSomethingWithSocket(socket);
+    console.log("a user connected", socket.data);
 
-    socket.on("chat message", (msg) => {
-        io.emit("chat message", msg);
+    socket.on("askForStateUpdate", () => {
+        console.log("client asked for state update");
+        socket.emit("updateState", poll);
+    });
+
+    socket.on("vote", (optionId: number) => {
+        poll.options.forEach((option) => {
+            option.votes = option.votes.filter(
+                (user) => user !== socket.data.user
+            );
+        });
+        const option = poll.options.find((o) => o.id === optionId);
+        if (!option) {
+            return;
+        }
+        option.votes.push(socket.data.user);
+        io.emit("updateState", poll);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
     });
 });
 
