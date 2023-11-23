@@ -11,7 +11,7 @@ const App = () => {
 
     // 🔌⚡️ get the connected socket client from our useSocket hook!
     const { socket, isConnected } = useSocket({
-        endpoint: process.env.WS_ENDPOINT ?? "http://localhost:9090",
+        endpoint: import.meta.env.WS_ENDPOINT ?? "http://localhost:9090",
         token: session,
     });
 
