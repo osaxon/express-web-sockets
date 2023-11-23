@@ -7,11 +7,10 @@ const App = () => {
     // set the PollState after receiving it from the server
     const [poll, setPoll] = useState<PollState | null>(null);
     const session = "oli saxon";
-    console.log(import.meta.env, "<---- process.env");
 
     // 🔌⚡️ get the connected socket client from our useSocket hook!
     const { socket, isConnected } = useSocket({
-        endpoint: import.meta.env.WS_ENDPOINT ?? "http://localhost:9090",
+        endpoint: import.meta.env.VITE_WS_ENDPOINT ?? "http://localhost:9090",
         token: session,
     });
 
