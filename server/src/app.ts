@@ -12,6 +12,7 @@ import {
 import session from "express-session";
 import { join } from "node:path";
 import { Server, Socket } from "socket.io";
+import "dotenv/config";
 
 const app = express();
 const server = createServer(app);
@@ -42,7 +43,10 @@ const io = new Server<
     InterServerEvents,
     SessionSocket
 >(server, {
-    cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
+    cors: {
+        origin: process.env.CLIENT_URL ?? "http://localhost:5173", // http://localhost:5173 is default local Vite server
+        methods: ["GET", "POST"],
+    },
 });
 
 io.engine.use(sessionMiddleware);
