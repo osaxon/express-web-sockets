@@ -17,7 +17,7 @@ import "dotenv/config";
 const app = express();
 const server = createServer(app);
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: process.env.CLIENT_URL ?? "*" }));
 
 const sessionMiddleware = session({
     secret: "super-secret-message",
