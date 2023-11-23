@@ -7,7 +7,7 @@ const App = () => {
     // set the PollState after receiving it from the server
     const [poll, setPoll] = useState<PollState | null>(null);
     const session = "oli saxon";
-    console.log(process.env, "<---- process.env");
+    console.log(import.meta.env, "<---- process.env");
 
     // 🔌⚡️ get the connected socket client from our useSocket hook!
     const { socket, isConnected } = useSocket({
